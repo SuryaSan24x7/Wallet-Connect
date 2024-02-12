@@ -4,12 +4,18 @@ import Web3 from 'web3';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import './Home.module.css'; // Assuming you are using Home.css for styling
-
+import Designer_1  from "./images/Designer_1.jpg";
+import Designer_2  from "./images/Designer_2.jpg";
+import Designer_3  from "./images/Designer_3.jpg";
+import Designer_4  from "./images/Designer_4.jpg";
+import Designer_5  from "./images/Designer_5.jpg";
+import Designer_6  from "./images/Designer_6.jpg";
 const Home = () => {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState([]);
   const [balance, setBalance] = useState('0');
   const [symbol, setSymbol] = useState("");
+  const [isLoading, setIsLoading] = useState(false); 
 
   const networks = [
     { id: 1, name: "Ethereum Mainnet" ,symbol: "ETH",cid:1n},
@@ -33,6 +39,7 @@ const Home = () => {
   ];
 
   const connectWallet = async () => {
+    setIsLoading(true); // Start loading
     if (window.ethereum) {
       try {
         const web3Instance = new Web3(window.ethereum);
@@ -46,6 +53,8 @@ const Home = () => {
 
       } catch (error) {
         console.error("Error connecting to MetaMask", error);
+      } finally {
+        setIsLoading(false); // Stop loading irrespective of the outcome
       }
     } else {
       alert("Please install MetaMask to use this feature.");
@@ -102,15 +111,62 @@ const Home = () => {
   }, [accounts]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" >
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <button
+          {/* Bootstrap Carousel Start */}
+          <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel" >
+  <div className="carousel-inner">
+     <div className="carousel-item active" data-bs-interval="5000">
+      <img src={Designer_1} class="d-block w-100 " alt="..."/>
+    </div>
+    <div className="carousel-item" data-bs-interval="5000">
+      <img src={Designer_2} class="d-block w-100" alt="..."/>
+    </div>
+    <div className="carousel-item" data-bs-interval="5000">
+      <img src={Designer_3} class="d-block w-100" alt="..."/>
+    </div> 
+    <div className="carousel-item " data-bs-interval="5000">
+      <img src={Designer_4} class="d-block w-100 " alt="..."/>
+    </div>
+    <div className="carousel-item" data-bs-interval="5000">
+      <img src={Designer_5} class="d-block w-100" alt="..."/>
+    </div>
+    <div className="carousel-item" data-bs-interval="5000">
+      <img src={Designer_6} class="d-block w-100" alt="..."/>
+    </div> 
+  </div>
+  <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span className="visually-hidden">Previous</span>
+  </button>
+  <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+    <span className="carousel-control-next-icon" aria-hidden="true"></span>
+    <span className="visually-hidden">Next</span>
+  </button>
+</div>
+        {/* Bootstrap Carousel End */}
+        {/* <button
           className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
           onClick={connectWallet}
         >
           Connect MetaMask
+        </button> */}
+        <button
+          className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+          onClick={connectWallet}
+          disabled={isLoading} // Disable button when loading
+        >
+          Connect MetaMask
         </button>
+        
+        {isLoading && (
+          <div class="text-center">
+          <div className="spinner-border text-success" role="status">
+            <span className="visually-hidden"> Loading...</span>
+          </div>
+          </div>
+        )}
         <div>
           <select
             className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
