@@ -1,9 +1,10 @@
 // src/Home.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Web3 from 'web3';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import './Home.module.css'; // Assuming you are using Home.css for styling
+import './Home.module.css'; 
 import Designer_1  from "./images/Designer_1.jpg";
 import Designer_2  from "./images/Designer_2.jpg";
 import Designer_3  from "./images/Designer_3.jpg";
@@ -11,6 +12,7 @@ import Designer_4  from "./images/Designer_4.jpg";
 import Designer_5  from "./images/Designer_5.jpg";
 import Designer_6  from "./images/Designer_6.jpg";
 const Home = () => {
+  let navigate = useNavigate();
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState([]);
   const [balance, setBalance] = useState('0');
@@ -37,7 +39,11 @@ const Home = () => {
     { id: 100, name: "xDAI Chain", symbol: "xDAI", cid: 100n },
     { id: 1377, name: "xDai Chain Testnet", symbol: "xDAI", cid: 1377n },
   ];
+  
 
+  const redirectToPhantomWallet = () => {
+    navigate('/phantom-wallet'); 
+  };
   const connectWallet = async () => {
     setIsLoading(true); // Start loading
     if (window.ethereum) {
@@ -193,7 +199,13 @@ const Home = () => {
           <p className="text-sm text-gray-700">Accounts: <span className="font-semibold">{accounts.join(', ')}</span></p>
           <p className="text-sm text-gray-700">Balance: <span className="font-semibold">{balance} {symbol}</span></p>
         </div>
-      </main>
+        <button
+  onClick={redirectToPhantomWallet}
+  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+>
+  Go to Phantom Wallet Connect Page
+</button>
+</main>
       <Footer />
     </div>
   );

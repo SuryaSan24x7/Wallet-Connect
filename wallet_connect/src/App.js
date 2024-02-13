@@ -2,12 +2,19 @@ import React from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import Home from './Props/Home'; 
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Phantom from './Props/Phantom';
+
 
 function App() {
   return (
     <div >
-      {/* Here we integrate the Home component which includes functionality for MetaMask */}
-      <Home />
+      <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/phantom-wallet" element={<Phantom />} />
+      </Routes>
+    </BrowserRouter>
       <Analytics />
     </div>
   );
