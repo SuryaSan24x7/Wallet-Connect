@@ -38,6 +38,7 @@ const Home = () => {
     { id: 1286, name: "Moonbeam Polkadot Testnet", symbol: "GLMR", cid: 1286n },
     { id: 100, name: "xDAI Chain", symbol: "xDAI", cid: 100n },
     { id: 1377, name: "xDai Chain Testnet", symbol: "xDAI", cid: 1377n },
+    {id:256,name:"Hedera Testnet",xymbol:"Hbar",cid:256n}
   ];
   
 
