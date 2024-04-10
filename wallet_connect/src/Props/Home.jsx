@@ -55,6 +55,7 @@ const Home = () => {
         setWeb3(web3Instance);
         setAccounts(accounts);
         fetchBalance(accounts[0]);
+        console.log(accounts);
         updateSymbol(await web3Instance.eth.getChainId());
         console.log(await web3Instance.eth.getChainId());
 
@@ -78,7 +79,7 @@ const Home = () => {
   const fetchBalance = async (account) => {
     if (!web3) return;
     const balance = await web3.eth.getBalance(account);
-    console.log(account);
+    
     setBalance(web3.utils.fromWei(balance, 'ether'));
   };
   const updateSymbol = (chainId) => {
