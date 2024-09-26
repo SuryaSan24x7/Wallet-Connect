@@ -15,10 +15,10 @@ const ContractConnection = () => {
 
   // Only OP BNB Testnet is used
   const opbnbNetwork = {
-    id: 991,
-    name: "OP BNB Testnet",
-    symbol: "tBNB",
-    cid: 991n,
+    id: 97,
+    name: "BNB Testnet",
+    symbol: "BNB",
+    cid: 97n,
   };
 
   // Connect wallet and initialize ethers provider and signer
