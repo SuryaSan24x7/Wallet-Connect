@@ -10,7 +10,8 @@ const ContractConnection = () => {
   const [referralAddress, setReferralAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const contractAddress = "0x4E997e3b5CD082b5F296fDB3C4D48dD4cAeca2BC"; // BSC Testnet contract address
+  const contractAddress = "0x4E997e3b5CD082b5F296fDB3C4D48dD4cAeca2BC"; // Contract address on BSC Testnet
+  const usdtAddress = "0x00d07A24B715892317009E483ce0caB67e98A67d"; // USDT token address on BSC Testnet
 
   // ABI for the contract methods we will use
   const contractAbi = [
@@ -28,6 +29,34 @@ const ContractConnection = () => {
       ],
       "name": "registration",
       "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+  // USDT Contract ABI for approval
+  const usdtAbi = [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     }
@@ -87,6 +116,22 @@ const ContractConnection = () => {
     }
   };
 
+  // Handle USDT approval
+  const handleApprove = async () => {
+    try {
+      // USDT contract instance
+      const usdtContract = new ethers.Contract(usdtAddress, usdtAbi, signer);
+
+      // Approve 100 USDT for spending by the contract
+      const amountToApprove = ethers.utils.parseUnits('100', 18); // Approve 100 USDT
+      const tx = await usdtContract.approve(contractAddress, amountToApprove);
+      await tx.wait(); // Wait for the transaction to be mined
+      alert("Approval successful for 100 USDT!");
+    } catch (error) {
+      console.error("Approval failed:", error);
+    }
+  };
+
   useEffect(() => {
     if (provider && signer && account) {
       // When wallet connects, automatically check if user is registered
@@ -138,6 +183,13 @@ const ContractConnection = () => {
               </div>
             </div>
           )}
+
+          <button
+            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mt-4"
+            onClick={handleApprove}
+          >
+            Approve 100 USDT
+          </button>
         </div>
       )}
     </div>
