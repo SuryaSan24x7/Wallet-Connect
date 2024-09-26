@@ -19,7 +19,7 @@ const Home = () => {
   const [symbol, setSymbol] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
 
- const networks = [
+const networks = [
   { id: 1, name: "Ethereum Mainnet" ,symbol: "ETH", cid: 1n },
   { id: 5, name: "Goerli Testnet" ,symbol: "GoerliETH", cid: 5n },
   { id: 137, name: "Polygon Mainnet", symbol: "MATIC", cid: 137n },
@@ -46,7 +46,22 @@ const Home = () => {
   { id: 8453, name: "Base Mainnet", symbol: "ETH", cid: 8453n },
   { id: 84531, name: "Base Goerli Testnet", symbol: "GoerliETH", cid: 84531n },
   { id: 204, name: "OP BNB Mainnet", symbol: "BNB", cid: 204n },
-  { id: 991, name: "OP BNB Testnet", symbol: "tBNB", cid: 991n }
+  { id: 991, name: "OP BNB Testnet", symbol: "tBNB", cid: 991n },
+  { id: 1284, name: "Moonriver", symbol: "MOVR", cid: 1284n },
+  { id: 42220, name: "Celo Mainnet", symbol: "CELO", cid: 42220n },
+  { id: 44787, name: "Celo Alfajores Testnet", symbol: "CELO", cid: 44787n },
+  { id: 8217, name: "Klaytn Mainnet", symbol: "KLAY", cid: 8217n },
+  { id: 42, name: "Kovan Testnet", symbol: "KETH", cid: 42n },
+  { id: 1313161554, name: "Aurora Mainnet", symbol: "AURORA", cid: 1313161554n },
+  { id: 1313161555, name: "Aurora Testnet", symbol: "AURORA", cid: 1313161555n },
+  { id: 25, name: "Cronos Mainnet", symbol: "CRO", cid: 25n },
+  { id: 338, name: "Cronos Testnet", symbol: "CRO", cid: 338n },
+  { id: 2222, name: "Kava Mainnet", symbol: "KAVA", cid: 2222n },
+  { id: 2221, name: "Kava Testnet", symbol: "KAVA", cid: 2221n },
+  { id: 1088, name: "Metis Mainnet", symbol: "METIS", cid: 1088n },
+  { id: 588, name: "Metis Testnet", symbol: "METIS", cid: 588n },
+  { id: 9001, name: "Evmos Mainnet", symbol: "EVMOS", cid: 9001n },
+  { id: 9000, name: "Evmos Testnet", symbol: "EVMOS", cid: 9000n }
 ];
 
   
