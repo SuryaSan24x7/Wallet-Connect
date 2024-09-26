@@ -7,6 +7,7 @@ const ContractConnection = () => {
   const [contract, setContract] = useState(null);
   const [account, setAccount] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
+  const [hasApproval, setHasApproval] = useState(false); // State to check approval
   const [referralAddress, setReferralAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,8 +35,18 @@ const ContractConnection = () => {
     }
   ];
 
-  // USDT Contract ABI for approval
+  // USDT Contract ABI for approval and allowance check
   const usdtAbi = [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "owner", "type": "address" },
+        { "internalType": "address", "name": "spender", "type": "address" }
+      ],
+      "name": "allowance",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
     {
       "inputs": [
         {
@@ -85,6 +96,14 @@ const ContractConnection = () => {
         // Check if the user is registered
         const userExists = await newContract.isUserExists(accounts);
         setIsRegistered(userExists);
+
+        // Check if the user already has USDT approval
+        const usdtContract = new ethers.Contract(usdtAddress, usdtAbi, newSigner);
+        const allowance = await usdtContract.allowance(accounts, contractAddress);
+
+        // Parse the allowance to check if it's greater or equal to 100 USDT (100 * 10^18)
+        const approvalAmount = ethers.utils.parseUnits('100', 18);
+        setHasApproval(allowance.gte(approvalAmount)); // Set hasApproval state if sufficient allowance
       } catch (error) {
         console.error("Error connecting to wallet:", error);
       } finally {
@@ -127,6 +146,9 @@ const ContractConnection = () => {
       const tx = await usdtContract.approve(contractAddress, amountToApprove);
       await tx.wait(); // Wait for the transaction to be mined
       alert("Approval successful for 100 USDT!");
+
+      // After approval, update the approval state
+      setHasApproval(true);
     } catch (error) {
       console.error("Approval failed:", error);
     }
@@ -184,12 +206,15 @@ const ContractConnection = () => {
             </div>
           )}
 
-          <button
-            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mt-4"
-            onClick={handleApprove}
-          >
-            Approve 100 USDT
-          </button>
+          {/* Only show Approve button if the user is not registered and doesn't have approval */}
+          {!isRegistered && !hasApproval && (
+            <button
+              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mt-4"
+              onClick={handleApprove}
+            >
+              Approve 100 USDT
+            </button>
+          )}
         </div>
       )}
     </div>
