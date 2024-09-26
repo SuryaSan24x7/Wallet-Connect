@@ -19,27 +19,36 @@ const Home = () => {
   const [symbol, setSymbol] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
 
-  const networks = [
-    { id: 1, name: "Ethereum Mainnet" ,symbol: "ETH",cid:1n},
-    { id: 5, name: "Goerli Testnet" ,symbol: "GorliETH",cid:5n},
-    { id: 137, name: "Polygon Mainnet",symbol: "MATIC",cid:137n },
-    { id: 80001, name: "Polygon Mumbai Testnet",symbol: "Matic",cid:80001n },
-    { id: 56, name: "Binance Smart Chain Mainnet", symbol: "BNB", cid: 56n },
-    { id: 97, name: "Binance Smart Chain Testnet", symbol: "BNB", cid: 97n },
-    { id: 128, name: "Huobi ECO Chain Mainnet", symbol: "HECO", cid: 128n },
-    { id: 256, name: "Huobi ECO Chain Testnet", symbol: "HECO", cid: 256n },
-    { id: 1666600000, name: "Harmony Mainnet", symbol: "ONE", cid: 1666600000n },
-    { id: 1666700000, name: "Harmony Testnet", symbol: "ONE", cid: 1666700000n },
-    { id: 43114, name: "Avalanche Mainnet", symbol: "AVAX", cid: 43114n },
-    { id: 43113, name: "Avalanche Testnet", symbol: "AVAX", cid: 43113n },
-    { id: 250, name: "Fantom Opera Mainnet", symbol: "FTM", cid: 250n },
-    { id: 4002, name: "Fantom Testnet", symbol: "FTM", cid: 4002n },
-    { id: 1285, name: "Moonbeam Polkadot Mainnet", symbol: "GLMR", cid: 1285n },
-    { id: 1286, name: "Moonbeam Polkadot Testnet", symbol: "GLMR", cid: 1286n },
-    { id: 100, name: "xDAI Chain", symbol: "xDAI", cid: 100n },
-    { id: 1377, name: "xDai Chain Testnet", symbol: "xDAI", cid: 1377n },
-    {id:296,name:"Hedera Testnet",xymbol:"Hbar",cid:296n}
-  ];
+ const networks = [
+  { id: 1, name: "Ethereum Mainnet" ,symbol: "ETH", cid: 1n },
+  { id: 5, name: "Goerli Testnet" ,symbol: "GoerliETH", cid: 5n },
+  { id: 137, name: "Polygon Mainnet", symbol: "MATIC", cid: 137n },
+  { id: 80001, name: "Polygon Mumbai Testnet", symbol: "Matic", cid: 80001n },
+  { id: 56, name: "Binance Smart Chain Mainnet", symbol: "BNB", cid: 56n },
+  { id: 97, name: "Binance Smart Chain Testnet", symbol: "BNB", cid: 97n },
+  { id: 128, name: "Huobi ECO Chain Mainnet", symbol: "HECO", cid: 128n },
+  { id: 256, name: "Huobi ECO Chain Testnet", symbol: "HECO", cid: 256n },
+  { id: 1666600000, name: "Harmony Mainnet", symbol: "ONE", cid: 1666600000n },
+  { id: 1666700000, name: "Harmony Testnet", symbol: "ONE", cid: 1666700000n },
+  { id: 43114, name: "Avalanche Mainnet", symbol: "AVAX", cid: 43114n },
+  { id: 43113, name: "Avalanche Testnet", symbol: "AVAX", cid: 43113n },
+  { id: 250, name: "Fantom Opera Mainnet", symbol: "FTM", cid: 250n },
+  { id: 4002, name: "Fantom Testnet", symbol: "FTM", cid: 4002n },
+  { id: 1285, name: "Moonbeam Polkadot Mainnet", symbol: "GLMR", cid: 1285n },
+  { id: 1286, name: "Moonbeam Polkadot Testnet", symbol: "GLMR", cid: 1286n },
+  { id: 100, name: "xDAI Chain", symbol: "xDAI", cid: 100n },
+  { id: 1377, name: "xDai Chain Testnet", symbol: "xDAI", cid: 1377n },
+  { id: 296, name: "Hedera Testnet", symbol: "HBAR", cid: 296n },
+  { id: 42161, name: "Arbitrum One", symbol: "ETH", cid: 42161n },
+  { id: 421613, name: "Arbitrum Goerli Testnet", symbol: "GoerliETH", cid: 421613n },
+  { id: 10, name: "Optimism Mainnet", symbol: "ETH", cid: 10n },
+  { id: 420, name: "Optimism Goerli Testnet", symbol: "GoerliETH", cid: 420n },
+  { id: 8453, name: "Base Mainnet", symbol: "ETH", cid: 8453n },
+  { id: 84531, name: "Base Goerli Testnet", symbol: "GoerliETH", cid: 84531n },
+  { id: 204, name: "OP BNB Mainnet", symbol: "BNB", cid: 204n },
+  { id: 991, name: "OP BNB Testnet", symbol: "tBNB", cid: 991n }
+];
+
   
 
   const redirectToPhantomWallet = () => {
