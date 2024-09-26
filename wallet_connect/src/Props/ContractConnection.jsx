@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers'; // Import ethers.js
-import abi from './ContractABI.json'; // Import the ABI from JSON
+import abi from './Harvest_BTC_Test.json'; // Import the ABI from JSON
 
 const ContractConnection = () => {
   const [provider, setProvider] = useState(null);
