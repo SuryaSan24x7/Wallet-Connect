@@ -11,8 +11,8 @@ const ContractConnection = () => {
   const [referralAddress, setReferralAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const contractAddress = "0x4E997e3b5CD082b5F296fDB3C4D48dD4cAeca2BC"; // Contract address on BSC Testnet
-  const usdtAddress = "0x00d07A24B715892317009E483ce0caB67e98A67d"; // USDT token address on BSC Testnet
+  const contractAddress = "0xA37c11b2D222De15Fd29615aB987b8ce68dB3EFF"; // Contract address on BSC Testnet
+  const usdtAddress = "0xC363437e8b353133632C74dc7504fd3B0E941b1c"; // USDT token address on BSC Testnet
 
   // ABI for the contract methods we will use
   const contractAbi = [
