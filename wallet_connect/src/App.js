@@ -4,6 +4,7 @@ import './App.css';
 import Home from './Props/Home'; 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Phantom from './Props/Phantom';
+import ContractConnection from './Props/ContractConnection';
 
 
 function App() {
