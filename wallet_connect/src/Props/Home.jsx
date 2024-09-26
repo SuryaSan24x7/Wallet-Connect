@@ -232,6 +232,12 @@ const networks = [
 >
   Go to Phantom Wallet Connect Page
 </button>
+ <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+          onClick={() => navigate('/contract-connection')}
+        >
+          Go to Contract Connection
+        </button>
 </main>
       <Footer />
     </div>
