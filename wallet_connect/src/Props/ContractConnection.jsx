@@ -1,47 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers'; // Import ethers.js
-import abi from './Harvest_BTC_Test.json'; // Import the ABI from JSON
+import { ethers } from 'ethers';
 
 const ContractConnection = () => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
-  const [accounts, setAccounts] = useState([]);
-  const [balance, setBalance] = useState('0');
-  const [symbol, setSymbol] = useState("");
+  const [account, setAccount] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [referralAddress, setReferralAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [contractAddress, setContractAddress] = useState(""); // Store user-provided contract address
-  const [contractFunctions, setContractFunctions] = useState([]); // Store contract functions
 
-  // Only OP BNB Testnet is used
-  const opbnbNetwork = {
-    id: 97,
-    name: "BNB Testnet",
-    symbol: "BNB",
-    cid: 97n,
-  };
+  const contractAddress = "0x4E997e3b5CD082b5F296fDB3C4D48dD4cAeca2BC"; // BSC Testnet contract address
+
+  // ABI for the contract methods we will use
+  const contractAbi = [
+    {
+      "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+      "name": "isUserExists",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "_user", "type": "address" },
+        { "internalType": "address", "name": "_referral", "type": "address" }
+      ],
+      "name": "registration",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
 
   // Connect wallet and initialize ethers provider and signer
   const connectWallet = async () => {
     setIsLoading(true);
     if (window.ethereum) {
       try {
-        // Request account access if needed
+        // Request account access
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         
-        // Create a new ethers provider and signer
         const newProvider = new ethers.providers.Web3Provider(window.ethereum);
         const newSigner = newProvider.getSigner();
         const accounts = await newSigner.getAddress();
-        
+
         setProvider(newProvider);
         setSigner(newSigner);
-        setAccounts([accounts]);
-        fetchBalance(newProvider, accounts);
-        const chainId = await newProvider.getNetwork().then(network => network.chainId);
-        if (chainId !== 991) {
-          alert("Please switch to the OP BNB Testnet");
-        }
+        setAccount(accounts);
+
+        // Instantiate contract instance
+        const newContract = new ethers.Contract(contractAddress, contractAbi, newSigner);
+        setContract(newContract);
+
+        // Check if the user is registered
+        const userExists = await newContract.isUserExists(accounts);
+        setIsRegistered(userExists);
       } catch (error) {
         console.error("Error connecting to wallet:", error);
       } finally {
@@ -49,86 +63,81 @@ const ContractConnection = () => {
       }
     } else {
       alert("Please install MetaMask to use this feature.");
+      setIsLoading(false);
     }
   };
 
-  // Fetch the balance of the connected account
-  const fetchBalance = async (provider, account) => {
-    const balance = await provider.getBalance(account);
-    setBalance(ethers.utils.formatEther(balance));
-  };
-
-  // Handle contract interactions
-  const loadContract = async () => {
-    if (!contractAddress) {
-      alert("Please enter a contract address");
+  // Handle registration
+  const handleRegistration = async () => {
+    if (!referralAddress) {
+      alert("Please enter a referral address.");
       return;
     }
 
     try {
-      const contractInstance = new ethers.Contract(contractAddress, abi, signer);
-      setContract(contractInstance);
+      const tx = await contract.registration(account, referralAddress);
+      await tx.wait(); // Wait for the transaction to be mined
+      alert("Registration successful!");
       
-      // Fetch contract functions from the ABI
-      const functions = Object.keys(contractInstance.interface.functions);
-      setContractFunctions(functions);
-      console.log("Contract functions loaded:", functions);
+      // Check the user's registration status again after the transaction
+      const userExists = await contract.isUserExists(account);
+      setIsRegistered(userExists);
     } catch (error) {
-      console.error("Failed to load contract:", error);
+      console.error("Registration failed:", error);
     }
   };
 
   useEffect(() => {
-    if (accounts.length > 0 && provider) {
-      fetchBalance(provider, accounts[0]);
+    if (provider && signer && account) {
+      // When wallet connects, automatically check if user is registered
+      const checkRegistrationStatus = async () => {
+        const userExists = await contract.isUserExists(account);
+        setIsRegistered(userExists);
+      };
+      checkRegistrationStatus();
     }
-  }, [accounts]);
+  }, [provider, signer, account]);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">Contract Connection</h1>
       
-      <button
-        className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-        onClick={connectWallet}
-        disabled={isLoading}
-      >
-        {isLoading ? "Connecting..." : "Connect Wallet"}
-      </button>
-
-      {accounts.length > 0 && (
-        <div>
-          <p>Connected Account: {accounts[0]}</p>
-          <p>Balance: {balance} {symbol || "ETH"}</p>
-        </div>
+      {!account && (
+        <button
+          className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+          onClick={connectWallet}
+          disabled={isLoading}
+        >
+          {isLoading ? "Connecting..." : "Connect Wallet"}
+        </button>
       )}
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Enter contract address"
-          value={contractAddress}
-          onChange={(e) => setContractAddress(e.target.value)}
-          className="border rounded p-2 w-full"
-        />
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
-          onClick={loadContract}
-        >
-          Load Contract
-        </button>
-      </div>
-
-      {contractFunctions.length > 0 && (
+      {account && (
         <div>
-          <h3>Available Contract Functions:</h3>
-          <ul>
-            {contractFunctions.map((func, index) => (
-              <li key={index} className="py-1">
-                {func}
-              </li>
-            ))}
-          </ul>
+          <p>Connected Account: {account}</p>
+
+          {isRegistered ? (
+            <p className="text-green-500">You are already registered!</p>
+          ) : (
+            <div>
+              <p className="text-red-500">You are not registered yet!</p>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Enter referral address"
+                  value={referralAddress}
+                  onChange={(e) => setReferralAddress(e.target.value)}
+                  className="border rounded p-2 w-full"
+                />
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+                  onClick={handleRegistration}
+                >
+                  Register
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
