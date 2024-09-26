@@ -13,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/phantom-wallet" element={<Phantom />} />
+        <Route path="/contract-connection" element={<ContractConnection />} />
       </Routes>
     </BrowserRouter>
       <Analytics />
