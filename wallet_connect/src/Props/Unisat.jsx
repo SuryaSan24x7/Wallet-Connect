@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -19,6 +19,19 @@ const Unisat = () => {
   const [balance, setBalance] = useState(0);
   const [network, setNetwork] = useState('livenet'); // 'livenet' or 'testnet'
   const [isConnected, setIsConnected] = useState(false);
+
+  const updateBalance = useCallback(async (accountAddress) => {
+    try {
+      if (provider) {
+        const balanceResult = await provider.getBalance();
+        // Balance is in satoshis, convert to BTC
+        const btcBalance = balanceResult.confirmed / Math.pow(10, 8);
+        setBalance(btcBalance);
+      }
+    } catch (err) {
+      console.error('Error fetching balance:', err);
+    }
+  }, [provider]);
 
   useEffect(() => {
     const unisatProvider = getProvider();
@@ -63,20 +76,7 @@ const Unisat = () => {
       unisatProvider?.removeListener('accountsChanged');
       unisatProvider?.removeListener('networkChanged');
     };
-  }, [address]);
-
-  const updateBalance = async (accountAddress) => {
-    try {
-      if (provider) {
-        const balanceResult = await provider.getBalance();
-        // Balance is in satoshis, convert to BTC
-        const btcBalance = balanceResult.confirmed / Math.pow(10, 8);
-        setBalance(btcBalance);
-      }
-    } catch (err) {
-      console.error('Error fetching balance:', err);
-    }
-  };
+  }, [address, updateBalance]);
 
   const connectWallet = async (selectedNetwork) => {
     try {

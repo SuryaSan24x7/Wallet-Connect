@@ -1,5 +1,5 @@
 // src/Home.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Web3 from 'web3';
 import Header from './components/Header';
@@ -100,11 +100,11 @@ const networks = [
     // Note: This doesn't actually "disconnect" MetaMask but resets the app's state.
   };
 
-  const fetchBalance = async (account) => {
+  const fetchBalance = useCallback(async (account) => {
     if (!web3) return;
     const balance = await web3.eth.getBalance(account);
     setBalance(web3.utils.fromWei(balance, 'ether'));
-  };
+  }, [web3]);
 
   const updateSymbol = (chainId) => {
     const network = networks.find(network => network.cid === chainId);
@@ -141,7 +141,7 @@ const networks = [
     if (accounts.length > 0 && web3) {
       fetchBalance(accounts[0]);
     }
-  }, [accounts, web3]);
+  }, [accounts, web3, fetchBalance]);
 
   return (
     <div className="flex flex-col min-h-screen" >
