@@ -5,6 +5,7 @@ import Home from './Props/Home';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Phantom from './Props/Phantom';
 import ContractConnection from './Props/ContractConnection';
+import Unisat from './Props/Unisat';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/phantom-wallet" element={<Phantom />} />
         <Route path="/contract-connection" element={<ContractConnection />} />
+        <Route path="/unisat-wallet" element={<Unisat />} />
       </Routes>
     </BrowserRouter>
       <Analytics />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { useNavigate } from 'react-router-dom';
 import Footer from './components/Footer';
 import Header from './components/Header';
 
@@ -15,6 +16,7 @@ const getProvider = () => {
 };
 
 const Phantom = () => {
+  const navigate = useNavigate();
   const [provider, setProvider] = useState(null);
   const [pubKey, setPubKey] = useState(null);
   const [balance, setBalance] = useState(0);
@@ -95,6 +97,26 @@ const Phantom = () => {
           </>
         )}
       </main>
+      <div className="flex gap-4 justify-center p-4 flex-wrap">
+        <button
+          onClick={() => navigate('/')}
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition"
+        >
+          Go to Home
+        </button>
+        <button
+          onClick={() => navigate('/contract-connection')}
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
+        >
+          Go to Contract Connection
+        </button>
+        <button
+          onClick={() => navigate('/unisat-wallet')}
+          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition"
+        >
+          Go to Unisat Bitcoin Wallet
+        </button>
+      </div>
       <Footer />
     </div>
   );
