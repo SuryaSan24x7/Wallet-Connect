@@ -20,31 +20,59 @@ const Phantom = () => {
   const [provider, setProvider] = useState(null);
   const [pubKey, setPubKey] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [connectionStatus, setConnectionStatus] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [network, setNetwork] = useState('devnet');
 
   useEffect(() => {
+    // Load from localStorage
+    const savedPubKey = localStorage.getItem('phantom_pubkey');
+    const savedNetwork = localStorage.getItem('phantom_network') || 'devnet';
+    const savedConnected = localStorage.getItem('phantom_connected') === 'true';
+
     const phantomProvider = getProvider();
     setProvider(phantomProvider);
 
-    const updateBalance = async (network) => {
-      if (phantomProvider && pubKey) {
-        const connection = new Connection(clusterApiUrl(network), 'confirmed');
-        const newBalance = await connection.getBalance(new PublicKey(pubKey));
-        setBalance(newBalance / Math.pow(10, 9)); // Convert lamports to SOL
+    const updateBalance = async (net) => {
+      if (phantomProvider && savedPubKey) {
+        try {
+          const connection = new Connection(clusterApiUrl(net), 'confirmed');
+          const newBalance = await connection.getBalance(new PublicKey(savedPubKey));
+          setBalance(newBalance / Math.pow(10, 9));
+        } catch (err) {
+          console.error('Error fetching balance:', err);
+        }
       }
     };
 
     if (phantomProvider) {
       phantomProvider.on("connect", () => {
         console.log("Connected to Phantom Wallet!");
-        setPubKey(phantomProvider.publicKey.toString());
-        updateBalance(phantomProvider._network); // Use the current network of the provider
+        const pubKeyStr = phantomProvider.publicKey.toString();
+        setPubKey(pubKeyStr);
+        localStorage.setItem('phantom_pubkey', pubKeyStr);
+        localStorage.setItem('phantom_network', savedNetwork);
+        localStorage.setItem('phantom_connected', 'true');
+        updateBalance(savedNetwork);
+        setConnectionStatus('✓ Phantom connected successfully!');
       });
 
       phantomProvider.on("disconnect", () => {
         console.log("Disconnected from Phantom Wallet!");
         setPubKey(null);
         setBalance(0);
+        localStorage.removeItem('phantom_pubkey');
+        localStorage.removeItem('phantom_network');
+        localStorage.removeItem('phantom_connected');
+        setConnectionStatus('');
       });
+    }
+
+    // Restore from localStorage if was connected
+    if (savedPubKey && savedConnected) {
+      setPubKey(savedPubKey);
+      setNetwork(savedNetwork);
+      updateBalance(savedNetwork);
     }
 
     // Clean up listeners on component unmount
@@ -54,24 +82,51 @@ const Phantom = () => {
     };
   }, [provider, pubKey]); // Removed network from dependencies to prevent unnecessary effect triggers
 
-  const connectWallet = async (network) => {
+  const connectWallet = async (net) => {
     try {
       if (provider) {
         await provider.connect();
-        provider._network = network; // Set the network on the provider for later reference
-        const connection = new Connection(clusterApiUrl(network), 'confirmed');
+        setNetwork(net);
+        localStorage.setItem('phantom_network', net);
+        const connection = new Connection(clusterApiUrl(net), 'confirmed');
         const newBalance = await connection.getBalance(new PublicKey(provider.publicKey));
-        setBalance(newBalance / Math.pow(10, 9)); // Convert lamports to SOL
+        setBalance(newBalance / Math.pow(10, 9));
+        setPubKey(provider.publicKey.toString());
+        localStorage.setItem('phantom_pubkey', provider.publicKey.toString());
+        localStorage.setItem('phantom_connected', 'true');
+        setConnectionStatus('✓ Phantom connected successfully!');
       }
     } catch (err) {
       console.error(err);
+      setConnectionStatus('✗ Connection failed: ' + err.message);
     }
+  };
+
+  const testConnection = async () => {
+    setIsLoading(true);
+    setConnectionStatus('Testing connection...');
+    try {
+      if (provider && pubKey) {
+        const connection = new Connection(clusterApiUrl(network), 'confirmed');
+        const balance = await connection.getBalance(new PublicKey(pubKey));
+        setConnectionStatus('✓ Connection successful! Wallet is responding.');
+      } else {
+        setConnectionStatus('✗ Wallet not connected.');
+      }
+    } catch (err) {
+      setConnectionStatus('✗ Connection test failed: ' + err.message);
+    }
+    setIsLoading(false);
   };
 
   const disconnectWallet = async () => {
     await provider?.disconnect();
     setPubKey(null);
     setBalance(0);
+    setConnectionStatus('');
+    localStorage.removeItem('phantom_pubkey');
+    localStorage.removeItem('phantom_network');
+    localStorage.removeItem('phantom_connected');
   };
 
   return (
@@ -97,6 +152,22 @@ const Phantom = () => {
               >
                 Disconnect Wallet
               </button>
+
+              <button 
+                onClick={testConnection} 
+                disabled={isLoading}
+                className="w-full mt-3 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-50"
+              >
+                {isLoading ? 'Testing...' : 'Test Connection'}
+              </button>
+
+              {connectionStatus && (
+                <div className={`mt-4 p-3 rounded-lg text-sm font-semibold ${
+                  connectionStatus.includes('✓') ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
+                }`}>
+                  {connectionStatus}
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -117,26 +188,50 @@ const Phantom = () => {
           )}
         </div>
       </main>
-      <nav className="w-full bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <nav className="w-full bg-slate-800 border-t-2 border-purple-500 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <button
               onClick={() => navigate('/')}
-              className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition duration-200"
+              className="w-full px-4 py-2 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
             >
               Go to Home
             </button>
             <button
-              onClick={() => navigate('/contract-connection')}
-              className="w-full px-4 py-2 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-200"
+              onClick={() => navigate('/unisat-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
             >
-              Contract Connection
+              Unisat Bitcoin
             </button>
             <button
-              onClick={() => navigate('/unisat-wallet')}
-              className="w-full px-4 py-2 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition duration-200"
+              onClick={() => navigate('/ton-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
             >
-              Unisat Wallet
+              TON Wallet
+            </button>
+            <button
+              onClick={() => navigate('/sui-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Sui Wallet
+            </button>
+            <button
+              onClick={() => navigate('/aptos-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Aptos Wallet
+            </button>
+            <button
+              onClick={() => navigate('/near-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              NEAR Protocol
+            </button>
+            <button
+              onClick={() => navigate('/contract-connection')}
+              className="w-full px-4 py-2 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Contract Connection
             </button>
           </div>
         </div>

@@ -17,7 +17,21 @@ const Home = () => {
   const [accounts, setAccounts] = useState([]);
   const [balance, setBalance] = useState('0');
   const [symbol, setSymbol] = useState("");
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('');
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedAccounts = JSON.parse(localStorage.getItem('metamask_accounts') || '[]');
+    const savedBalance = localStorage.getItem('metamask_balance') || '0';
+    const savedSymbol = localStorage.getItem('metamask_symbol') || '';
+
+    if (savedAccounts.length > 0) {
+      setAccounts(savedAccounts);
+      setBalance(savedBalance);
+      setSymbol(savedSymbol);
+    }
+  }, []); 
 
 const networks = [
   { id: 1, name: "Ethereum Mainnet" ,symbol: "ETH", cid: 1n },
@@ -69,8 +83,31 @@ const networks = [
   const redirectToPhantomWallet = () => {
     navigate('/phantom-wallet'); 
   };
+
+  const testConnection = async () => {
+    setIsLoading(true);
+    setConnectionStatus('Testing connection...');
+    try {
+      if (window.ethereum) {
+        const web3Instance = new Web3(window.ethereum);
+        const currentAccounts = await web3Instance.eth.getAccounts();
+        if (currentAccounts.length > 0) {
+          setConnectionStatus('✓ MetaMask connection successful! Wallet is responding.');
+        } else {
+          setConnectionStatus('✗ No accounts found. Please connect to MetaMask.');
+        }
+      } else {
+        setConnectionStatus('✗ MetaMask not detected.');
+      }
+    } catch (err) {
+      setConnectionStatus('✗ Connection test failed: ' + err.message);
+    }
+    setIsLoading(false);
+  };
+
   const connectWallet = async () => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
+    setConnectionStatus('Connecting...');
     if (window.ethereum) {
       try {
         const web3Instance = new Web3(window.ethereum);
@@ -80,16 +117,23 @@ const networks = [
         setAccounts(accounts);
         fetchBalance(accounts[0]);
         console.log(accounts);
-        updateSymbol(await web3Instance.eth.getChainId());
-        console.log(await web3Instance.eth.getChainId());
+        const chainId = await web3Instance.eth.getChainId();
+        updateSymbol(chainId);
+        console.log(chainId);
 
+        // Save to localStorage
+        localStorage.setItem('metamask_accounts', JSON.stringify(accounts));
+        localStorage.setItem('metamask_balance', await web3Instance.eth.getBalance(accounts[0]));
+        setConnectionStatus('✓ MetaMask connected successfully!');
       } catch (error) {
         console.error("Error connecting to MetaMask", error);
+        setConnectionStatus('✗ Connection failed: ' + error.message);
       } finally {
-        setIsLoading(false); // Stop loading irrespective of the outcome
+        setIsLoading(false);
       }
     } else {
       alert("Please install MetaMask to use this feature.");
+      setIsLoading(false);
     }
   };
 
@@ -97,7 +141,11 @@ const networks = [
     setAccounts([]);
     setBalance('0');
     setSymbol("");
-    // Note: This doesn't actually "disconnect" MetaMask but resets the app's state.
+    setConnectionStatus('');
+    // Clear localStorage
+    localStorage.removeItem('metamask_accounts');
+    localStorage.removeItem('metamask_balance');
+    localStorage.removeItem('metamask_symbol');
   };
 
   const fetchBalance = useCallback(async (account) => {
@@ -222,6 +270,24 @@ const networks = [
           )}
 
           {accounts.length > 0 && (
+            <button
+              onClick={testConnection}
+              disabled={isLoading}
+              className="w-full sm:w-auto ml-3 bg-green-600 hover:bg-green-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 shadow-lg disabled:opacity-50"
+            >
+              {isLoading ? 'Testing...' : 'Test Connection'}
+            </button>
+          )}
+
+          {connectionStatus && (
+            <div className={`p-3 rounded-lg text-sm font-semibold ${
+              connectionStatus.includes('✓') ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
+            }`}>
+              {connectionStatus}
+            </div>
+          )}
+
+          {accounts.length > 0 && (
             <div className="mt-6 bg-slate-700 bg-opacity-50 backdrop-blur p-4 rounded-xl shadow-xl border border-orange-500">
               <h3 className="text-lg font-semibold mb-3 text-orange-400">Wallet Details</h3>
               <div className="space-y-3">
@@ -240,7 +306,7 @@ const networks = [
         </main>
         <nav className="w-full bg-slate-800 border-t-2 border-orange-500 backdrop-blur">
           <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <button
                 onClick={redirectToPhantomWallet}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
@@ -248,16 +314,40 @@ const networks = [
                 Phantom Wallet
               </button>
               <button
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
-                onClick={() => navigate('/contract-connection')}
-              >
-                Contract Connection
-              </button>
-              <button
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
                 onClick={() => navigate('/unisat-wallet')}
               >
                 Unisat Bitcoin
+              </button>
+              <button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
+                onClick={() => navigate('/ton-wallet')}
+              >
+                TON Wallet
+              </button>
+              <button
+                className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
+                onClick={() => navigate('/sui-wallet')}
+              >
+                Sui Wallet
+              </button>
+              <button
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
+                onClick={() => navigate('/aptos-wallet')}
+              >
+                Aptos Wallet
+              </button>
+              <button
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
+                onClick={() => navigate('/near-wallet')}
+              >
+                NEAR Protocol
+              </button>
+              <button
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
+                onClick={() => navigate('/contract-connection')}
+              >
+                Contract Connection
               </button>
             </div>
           </div>

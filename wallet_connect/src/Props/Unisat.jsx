@@ -19,8 +19,15 @@ const Unisat = () => {
   const [balance, setBalance] = useState(0);
   const [network, setNetwork] = useState('livenet'); // 'livenet' or 'testnet'
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Load from localStorage
+    const savedAddress = localStorage.getItem('unisat_address');
+    const savedNetwork = localStorage.getItem('unisat_network') || 'livenet';
+    const savedConnected = localStorage.getItem('unisat_connected') === 'true';
+
     const unisatProvider = getProvider();
     setProvider(unisatProvider);
 
@@ -46,6 +53,13 @@ const Unisat = () => {
             setAddress(accounts[0]);
             setIsConnected(true);
             updateBalance();
+            localStorage.setItem('unisat_address', accounts[0]);
+            localStorage.setItem('unisat_connected', 'true');
+          } else if (savedAddress && savedConnected) {
+            setAddress(savedAddress);
+            setIsConnected(true);
+            setNetwork(savedNetwork);
+            updateBalance();
           }
         })
         .catch((err) => console.error('Error getting accounts:', err));
@@ -56,16 +70,21 @@ const Unisat = () => {
           setAddress(accounts[0]);
           setIsConnected(true);
           updateBalance();
+          localStorage.setItem('unisat_address', accounts[0]);
+          localStorage.setItem('unisat_connected', 'true');
         } else {
           setAddress(null);
           setIsConnected(false);
           setBalance(0);
+          localStorage.removeItem('unisat_address');
+          localStorage.removeItem('unisat_connected');
         }
       };
 
       // Listen for network changes
       const handleNetworkChanged = (newNetwork) => {
         setNetwork(newNetwork);
+        localStorage.setItem('unisat_network', newNetwork);
         updateBalance();
       };
 
@@ -91,11 +110,39 @@ const Unisat = () => {
           // or from the provider's current state
           const currentNetwork = await provider.getNetwork();
           setNetwork(currentNetwork || selectedNetwork);
+          setConnectionStatus('✓ Unisat connected successfully!');
+
+          // Save to localStorage
+          localStorage.setItem('unisat_address', accounts[0]);
+          localStorage.setItem('unisat_network', currentNetwork || selectedNetwork);
+          localStorage.setItem('unisat_connected', 'true');
         }
       }
     } catch (err) {
       console.error('Error connecting wallet:', err);
+      setConnectionStatus('✗ Connection failed: ' + err.message);
     }
+  };
+
+  const testConnection = async () => {
+    setIsLoading(true);
+    setConnectionStatus('Testing connection...');
+    try {
+      if (provider) {
+        const accounts = await provider.getAccounts();
+        if (accounts.length > 0) {
+          const balanceResult = await provider.getBalance();
+          setConnectionStatus('✓ Connection successful! Wallet is responding.');
+        } else {
+          setConnectionStatus('✗ No accounts found. Please connect a wallet.');
+        }
+      } else {
+        setConnectionStatus('✗ Wallet provider not found.');
+      }
+    } catch (err) {
+      setConnectionStatus('✗ Connection test failed: ' + err.message);
+    }
+    setIsLoading(false);
   };
 
   const switchNetwork = async (selectedNetwork) => {
@@ -104,6 +151,7 @@ const Unisat = () => {
         // Note: Unisat may not support programmatic network switching
         // This is handled through the wallet settings
         setNetwork(selectedNetwork);
+        localStorage.setItem('unisat_network', selectedNetwork);
         alert(`Please switch to ${selectedNetwork === 'livenet' ? 'Bitcoin Mainnet' : 'Bitcoin Testnet'} in your Unisat wallet.`);
       }
     } catch (err) {
@@ -115,6 +163,12 @@ const Unisat = () => {
     setAddress(null);
     setIsConnected(false);
     setBalance(0);
+    setConnectionStatus('');
+
+    // Clear localStorage
+    localStorage.removeItem('unisat_address');
+    localStorage.removeItem('unisat_network');
+    localStorage.removeItem('unisat_connected');
   };
 
   const getNetworkName = () => {
@@ -153,7 +207,22 @@ const Unisat = () => {
             >
               Disconnect Wallet
             </button>
-          </>
+
+            <button
+              onClick={testConnection}
+              disabled={isLoading}
+              className="mt-4 ml-3 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition disabled:opacity-50"
+            >
+              {isLoading ? 'Testing...' : 'Test Connection'}
+            </button>
+
+            {connectionStatus && (
+              <div className={`mt-4 p-3 rounded-lg text-sm font-semibold ${
+                connectionStatus.includes('✓') ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
+              }`}>
+                {connectionStatus}
+              </div>
+            )}
         ) : (
           <>
             <p className="text-lg mb-6 text-gray-700">Connect your Unisat wallet to get started</p>
@@ -212,25 +281,53 @@ const Unisat = () => {
           </div>
         )}
       </main>
-      <div className="flex gap-4 justify-center p-4 flex-wrap">
-        <button
-          onClick={() => navigate('/')}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Home
-        </button>
-        <button
-          onClick={() => navigate('/phantom-wallet')}
-          className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Phantom Wallet
-        </button>
-        <button
-          onClick={() => navigate('/contract-connection')}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Contract Connection
-        </button>
+      <div className="w-full bg-slate-800 border-t-2 border-orange-500">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              onClick={() => navigate('/')}
+              className="w-full px-4 py-2 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to Home
+            </button>
+            <button
+              onClick={() => navigate('/phantom-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to Phantom
+            </button>
+            <button
+              onClick={() => navigate('/ton-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to TON
+            </button>
+            <button
+              onClick={() => navigate('/sui-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to Sui
+            </button>
+            <button
+              onClick={() => navigate('/aptos-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to Aptos
+            </button>
+            <button
+              onClick={() => navigate('/near-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Go to NEAR
+            </button>
+            <button
+              onClick={() => navigate('/contract-connection')}
+              className="w-full px-4 py-2 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+            >
+              Contract Connection
+            </button>
+          </div>
+        </div>
       </div>
       <Footer />
     </div>
