@@ -144,12 +144,12 @@ const networks = [
   }, [accounts, web3, fetchBalance]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50" >
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black" >
       <Header />
       <main className="flex-grow w-full px-3 sm:px-4 md:px-6 py-6 sm:py-8">
           {/* Bootstrap Carousel Start */}
-          <div id="carouselExampleInterval" class="carousel slide w-full" data-bs-ride="carousel" >
-  <div className="carousel-inner rounded-lg overflow-hidden">
+          <div id="carouselExampleInterval" class="carousel slide w-full shadow-2xl" data-bs-ride="carousel" >
+  <div className="carousel-inner rounded-xl overflow-hidden border-2 border-orange-500">
      <div className="carousel-item active" data-bs-interval="5000">
       <img src={Designer_1} class="d-block w-100 " alt="..."/>
     </div>
@@ -169,11 +169,11 @@ const networks = [
       <img src={Designer_6} class="d-block w-100" alt="..."/>
     </div> 
   </div>
-  <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+  <button className="carousel-control-prev opacity-70 hover:opacity-100" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
     <span className="carousel-control-prev-icon" aria-hidden="true"></span>
     <span className="visually-hidden">Previous</span>
   </button>
-  <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+  <button className="carousel-control-next opacity-70 hover:opacity-100" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
     <span className="carousel-control-next-icon" aria-hidden="true"></span>
     <span className="visually-hidden">Next</span>
   </button>
@@ -181,7 +181,7 @@ const networks = [
         {/* Bootstrap Carousel End */}
         <div className="mt-6 sm:mt-8 space-y-4">
           <button
-            className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 disabled:opacity-50"
+            className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 disabled:opacity-50 shadow-lg"
             onClick={connectWallet}
             disabled={isLoading}
           >
@@ -190,22 +190,22 @@ const networks = [
           
           {isLoading && (
             <div className="text-center">
-              <div className="inline-block spinner-border text-success" role="status">
+              <div className="inline-block spinner-border text-orange-500" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           )}
 
           <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Select Network</label>
+            <label className="block text-sm font-medium text-white mb-2">Select Network</label>
             <select
-              className="w-full bg-white border border-gray-300 hover:border-gray-400 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full bg-slate-700 border-2 border-orange-500 text-white hover:border-orange-600 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-lg leading-tight focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               defaultValue=""
               onChange={(e) => switchNetwork(e.target.value)}
             >
-              <option value="" disabled>Select a network</option>
+              <option value="" disabled className="bg-slate-700">Select a network</option>
               {networks.map((network) => (
-                <option key={network.id} value={network.id}>
+                <option key={network.id} value={network.id} className="bg-slate-700">
                   {network.name}
                 </option>
               ))}
@@ -214,7 +214,7 @@ const networks = [
 
           {accounts.length > 0 && (
             <button
-              className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 shadow-lg"
               onClick={disconnectWallet}
             >
               Disconnect Wallet
@@ -222,39 +222,39 @@ const networks = [
           )}
 
           {accounts.length > 0 && (
-            <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">Wallet Details</h3>
+            <div className="mt-6 bg-slate-700 bg-opacity-50 backdrop-blur p-4 rounded-xl shadow-xl border border-orange-500">
+              <h3 className="text-lg font-semibold mb-3 text-orange-400">Wallet Details</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 font-medium">Account Address</p>
-                  <p className="text-xs sm:text-sm font-mono break-all bg-gray-100 p-2 rounded mt-1 text-gray-800">{accounts[0]}</p>
+                  <p className="text-xs sm:text-sm text-gray-300 font-medium">Account Address</p>
+                  <p className="text-xs sm:text-sm font-mono break-all bg-slate-800 p-2 rounded mt-1 text-orange-400">{accounts[0]}</p>
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-600 font-medium">Balance</p>
-                  <p className="text-lg sm:text-xl font-bold text-green-600">{balance} {symbol}</p>
+                  <p className="text-xs sm:text-sm text-gray-300 font-medium">Balance</p>
+                  <p className="text-lg sm:text-xl font-bold text-orange-500">{balance} {symbol}</p>
                 </div>
               </div>
             </div>
           )}
         </div>
         </main>
-        <nav className="w-full bg-white border-t border-gray-200">
+        <nav className="w-full bg-slate-800 border-t-2 border-orange-500 backdrop-blur">
           <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <button
                 onClick={redirectToPhantomWallet}
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
               >
                 Phantom Wallet
               </button>
               <button
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
                 onClick={() => navigate('/contract-connection')}
               >
                 Contract Connection
               </button>
               <button
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200 shadow-lg"
                 onClick={() => navigate('/unisat-wallet')}
               >
                 Unisat Bitcoin

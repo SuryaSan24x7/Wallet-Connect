@@ -51,7 +51,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  animation: backgroundAnimation 15s ease infinite;
-  background-size: 200% 200%;
-  background-image: linear-gradient(45deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee, #dcb0ed);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: white;
 }
