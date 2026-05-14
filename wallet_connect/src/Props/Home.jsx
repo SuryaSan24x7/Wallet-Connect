@@ -100,6 +100,12 @@ const networks = [
     // Note: This doesn't actually "disconnect" MetaMask but resets the app's state.
   };
 
+  const fetchBalance = async (account) => {
+    if (!web3) return;
+    const balance = await web3.eth.getBalance(account);
+    setBalance(web3.utils.fromWei(balance, 'ether'));
+  };
+
   const updateSymbol = (chainId) => {
     const network = networks.find(network => network.cid === chainId);
     console.log("inside update symbol");
@@ -132,14 +138,7 @@ const networks = [
   };
 
   useEffect(() => {
-    const fetchBalance = async (account) => {
-      if (!web3) return;
-      const balance = await web3.eth.getBalance(account);
-      
-      setBalance(web3.utils.fromWei(balance, 'ether'));
-    };
-
-    if (accounts.length > 0) {
+    if (accounts.length > 0 && web3) {
       fetchBalance(accounts[0]);
     }
   }, [accounts, web3]);
