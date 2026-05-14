@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -20,22 +20,22 @@ const Unisat = () => {
   const [network, setNetwork] = useState('livenet'); // 'livenet' or 'testnet'
   const [isConnected, setIsConnected] = useState(false);
 
-  const updateBalance = useCallback(async (accountAddress) => {
-    try {
-      if (provider) {
-        const balanceResult = await provider.getBalance();
-        // Balance is in satoshis, convert to BTC
-        const btcBalance = balanceResult.confirmed / Math.pow(10, 8);
-        setBalance(btcBalance);
-      }
-    } catch (err) {
-      console.error('Error fetching balance:', err);
-    }
-  }, [provider]);
-
   useEffect(() => {
     const unisatProvider = getProvider();
     setProvider(unisatProvider);
+
+    const updateBalance = async () => {
+      try {
+        if (unisatProvider) {
+          const balanceResult = await unisatProvider.getBalance();
+          // Balance is in satoshis, convert to BTC
+          const btcBalance = balanceResult.confirmed / Math.pow(10, 8);
+          setBalance(btcBalance);
+        }
+      } catch (err) {
+        console.error('Error fetching balance:', err);
+      }
+    };
 
     if (unisatProvider) {
       // Check if already connected
@@ -45,38 +45,39 @@ const Unisat = () => {
           if (accounts.length > 0) {
             setAddress(accounts[0]);
             setIsConnected(true);
-            updateBalance(accounts[0]);
+            updateBalance();
           }
         })
         .catch((err) => console.error('Error getting accounts:', err));
 
       // Listen for account changes
-      unisatProvider.on('accountsChanged', (accounts) => {
+      const handleAccountsChanged = (accounts) => {
         if (accounts.length > 0) {
           setAddress(accounts[0]);
           setIsConnected(true);
-          updateBalance(accounts[0]);
+          updateBalance();
         } else {
           setAddress(null);
           setIsConnected(false);
           setBalance(0);
         }
-      });
+      };
 
       // Listen for network changes
-      unisatProvider.on('networkChanged', (newNetwork) => {
+      const handleNetworkChanged = (newNetwork) => {
         setNetwork(newNetwork);
-        if (address) {
-          updateBalance(address);
-        }
-      });
-    }
+        updateBalance();
+      };
 
-    return () => {
-      unisatProvider?.removeListener('accountsChanged');
-      unisatProvider?.removeListener('networkChanged');
-    };
-  }, [address, updateBalance]);
+      unisatProvider.on('accountsChanged', handleAccountsChanged);
+      unisatProvider.on('networkChanged', handleNetworkChanged);
+
+      return () => {
+        unisatProvider.removeListener('accountsChanged', handleAccountsChanged);
+        unisatProvider.removeListener('networkChanged', handleNetworkChanged);
+      };
+    }
+  }, []);
 
   const connectWallet = async (selectedNetwork) => {
     try {
@@ -86,8 +87,10 @@ const Unisat = () => {
         if (accounts.length > 0) {
           setAddress(accounts[0]);
           setIsConnected(true);
-          setNetwork(selectedNetwork);
-          updateBalance(accounts[0]);
+          // Network will be updated via the networkChanged event listener
+          // or from the provider's current state
+          const currentNetwork = await provider.getNetwork();
+          setNetwork(currentNetwork || selectedNetwork);
         }
       }
     } catch (err) {
@@ -101,9 +104,6 @@ const Unisat = () => {
         // Note: Unisat may not support programmatic network switching
         // This is handled through the wallet settings
         setNetwork(selectedNetwork);
-        if (address) {
-          updateBalance(address);
-        }
         alert(`Please switch to ${selectedNetwork === 'livenet' ? 'Bitcoin Mainnet' : 'Bitcoin Testnet'} in your Unisat wallet.`);
       }
     } catch (err) {
