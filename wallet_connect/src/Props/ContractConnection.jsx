@@ -155,7 +155,7 @@ const ContractConnection = () => {
   };
 
   useEffect(() => {
-    if (provider && signer && account) {
+    if (provider && signer && account && contract) {
       // When wallet connects, automatically check if user is registered
       const checkRegistrationStatus = async () => {
         const userExists = await contract.isUserExists(account);
@@ -163,7 +163,7 @@ const ContractConnection = () => {
       };
       checkRegistrationStatus();
     }
-  }, [provider, signer, account]);
+  }, [provider, signer, account, contract]);
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -141,7 +141,7 @@ const networks = [
     if (accounts.length > 0) {
       fetchBalance(accounts[0]);
     }
-  }, [accounts]);
+  }, [accounts, web3]);
 
   return (
     <div className="flex flex-col min-h-screen" >
