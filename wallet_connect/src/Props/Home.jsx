@@ -144,12 +144,12 @@ const networks = [
   }, [accounts, web3, fetchBalance]);
 
   return (
-    <div className="flex flex-col min-h-screen" >
+    <div className="flex flex-col min-h-screen bg-gray-50" >
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow w-full px-3 sm:px-4 md:px-6 py-6 sm:py-8">
           {/* Bootstrap Carousel Start */}
-          <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel" >
-  <div className="carousel-inner">
+          <div id="carouselExampleInterval" class="carousel slide w-full" data-bs-ride="carousel" >
+  <div className="carousel-inner rounded-lg overflow-hidden">
      <div className="carousel-item active" data-bs-interval="5000">
       <img src={Designer_1} class="d-block w-100 " alt="..."/>
     </div>
@@ -179,72 +179,89 @@ const networks = [
   </button>
 </div>
         {/* Bootstrap Carousel End */}
-        {/* <button
-          className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-          onClick={connectWallet}
-        >
-          Connect MetaMask
-        </button> */}
-        <button
-          className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-          onClick={connectWallet}
-          disabled={isLoading} // Disable button when loading
-        >
-          Connect MetaMask
-        </button>
-        
-        {isLoading && (
-          <div class="text-center">
-          <div className="spinner-border text-success" role="status">
-            <span className="visually-hidden"> Loading...</span>
-          </div>
-          </div>
-        )}
-        <div>
-          <select
-            className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-            defaultValue=""
-            onChange={(e) => switchNetwork(e.target.value)}
-          >
-            <option value="" disabled>Default Network</option>
-            {networks.map((network) => (
-              <option key={network.id} value={network.id}>
-                {network.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {accounts.length > 0 && (
+        <div className="mt-6 sm:mt-8 space-y-4">
           <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
-            onClick={disconnectWallet}
+            className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 disabled:opacity-50"
+            onClick={connectWallet}
+            disabled={isLoading}
           >
-            Disconnect Wallet
+            Connect MetaMask
           </button>
-        )}
-        <div className="mt-6">
-          <p className="text-sm text-gray-700">Accounts: <span className="font-semibold">{accounts.join(', ')}</span></p>
-          <p className="text-sm text-gray-700">Balance: <span className="font-semibold">{balance} {symbol}</span></p>
+          
+          {isLoading && (
+            <div className="text-center">
+              <div className="inline-block spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          )}
+
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Select Network</label>
+            <select
+              className="w-full bg-white border border-gray-300 hover:border-gray-400 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              defaultValue=""
+              onChange={(e) => switchNetwork(e.target.value)}
+            >
+              <option value="" disabled>Select a network</option>
+              {networks.map((network) => (
+                <option key={network.id} value={network.id}>
+                  {network.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {accounts.length > 0 && (
+            <button
+              className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200"
+              onClick={disconnectWallet}
+            >
+              Disconnect Wallet
+            </button>
+          )}
+
+          {accounts.length > 0 && (
+            <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Wallet Details</h3>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">Account Address</p>
+                  <p className="text-xs sm:text-sm font-mono break-all bg-gray-100 p-2 rounded mt-1 text-gray-800">{accounts[0]}</p>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">Balance</p>
+                  <p className="text-lg sm:text-xl font-bold text-green-600">{balance} {symbol}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <button
-  onClick={redirectToPhantomWallet}
-  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
->
-  Go to Phantom Wallet Connect Page
-</button>
- <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-          onClick={() => navigate('/contract-connection')}
-        >
-          Go to Contract Connection
-        </button>
-        <button
-          className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded mb-4"
-          onClick={() => navigate('/unisat-wallet')}
-        >
-          Go to Unisat Bitcoin Wallet
-        </button>
-</main>
+        </main>
+        <nav className="w-full bg-white border-t border-gray-200">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <button
+                onClick={redirectToPhantomWallet}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+              >
+                Phantom Wallet
+              </button>
+              <button
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+                onClick={() => navigate('/contract-connection')}
+              >
+                Contract Connection
+              </button>
+              <button
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+                onClick={() => navigate('/unisat-wallet')}
+              >
+                Unisat Bitcoin
+              </button>
+            </div>
+          </div>
+        </nav>
       <Footer />
     </div>
   );

@@ -75,48 +75,72 @@ const Phantom = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center p-10">
-        {pubKey ? (
-          <>
-            <p className="text-lg">Connected Public Key: {pubKey}</p>
-            <p className="text-lg">Balance: {balance} SOL</p>
-            <button onClick={disconnectWallet} className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg">
-              Disconnect
-            </button>
-          </>
-        ) : (
-          <>
-            <button onClick={() => connectWallet('mainnet-beta')} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
-              Connect Wallet to Mainnet
-            </button>
-            <button onClick={() => connectWallet('devnet')} className="mt-4 ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
-              Connect Wallet to Devnet
-            </button>
-          </>
-        )}
+      <main className="flex-grow flex flex-col items-center justify-center w-full px-3 sm:px-4 py-8 sm:py-12">
+        <div className="w-full max-w-md">
+          <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-gray-800">Phantom Wallet</h1>
+          
+          {pubKey ? (
+            <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-2">Connected Public Key</p>
+                <p className="text-xs sm:text-sm font-mono break-all bg-gray-100 p-3 rounded text-gray-800">{pubKey}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-2">SOL Balance</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-600">{balance.toFixed(4)} SOL</p>
+              </div>
+              <button 
+                onClick={disconnectWallet} 
+                className="w-full mt-6 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition duration-200"
+              >
+                Disconnect Wallet
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-center text-gray-700 mb-6">Connect your Phantom wallet to view your Solana balance</p>
+              <button 
+                onClick={() => connectWallet('mainnet-beta')} 
+                className="w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-200"
+              >
+                Connect to Mainnet
+              </button>
+              <button 
+                onClick={() => connectWallet('devnet')} 
+                className="w-full px-4 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition duration-200"
+              >
+                Connect to Devnet
+              </button>
+            </div>
+          )}
+        </div>
       </main>
-      <div className="flex gap-4 justify-center p-4 flex-wrap">
-        <button
-          onClick={() => navigate('/')}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Home
-        </button>
-        <button
-          onClick={() => navigate('/contract-connection')}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Contract Connection
-        </button>
-        <button
-          onClick={() => navigate('/unisat-wallet')}
-          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition"
-        >
-          Go to Unisat Bitcoin Wallet
-        </button>
-      </div>
+      <nav className="w-full bg-white border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <button
+              onClick={() => navigate('/')}
+              className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition duration-200"
+            >
+              Go to Home
+            </button>
+            <button
+              onClick={() => navigate('/contract-connection')}
+              className="w-full px-4 py-2 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-200"
+            >
+              Contract Connection
+            </button>
+            <button
+              onClick={() => navigate('/unisat-wallet')}
+              className="w-full px-4 py-2 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition duration-200"
+            >
+              Unisat Wallet
+            </button>
+          </div>
+        </div>
+      </nav>
       <Footer />
     </div>
   );
